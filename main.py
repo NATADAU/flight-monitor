@@ -18,7 +18,8 @@ PRICE_FILE = "prices.json"
 CHECK_TIMES = ["09:00", "13:00", "20:00"]
 # ================================
 
-AVIASALES_URL = "https://www.aviasales.ru/search/MOW2006TBS03073"
+AVIASALES_1 = "https://www.aviasales.ru/search/MOW2006TBS030731"
+AVIASALES_3 = "https://www.aviasales.ru/search/MOW2006TBS030733"
 YANDEX_URL = "https://travel.yandex.ru/avia/search/?adult=3&children=0&infants=0&fromId=c213&toId=c10313&when=2025-06-20&return=2025-07-03"
 SKYSCANNER_URL = "https://www.skyscanner.ru/transport/flights/mosc/tbla/250620/250703/?adults=3"
 
@@ -70,9 +71,10 @@ def send_check_reminder():
 {last_info}
 
 🔍 Проверить сейчас:
-• <a href="{AVIASALES_URL}">Aviasales</a>
-• <a href="{YANDEX_URL}">Яндекс Путешествия</a>
-• <a href="{SKYSCANNER_URL}">Skyscanner</a>
+•- <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (умножьте на 3)
+- <a href="{AVIASALES_3}">Aviasales — 3 пассажира</a>
+- <a href="{YANDEX_URL}">Яндекс Путешествия</a>
+- <a href="{SKYSCANNER_URL}">Skyscanner</a>
 
 💬 Напишите мне цену которую нашли (только цифры, например: <b>95000</b>)"""
 
