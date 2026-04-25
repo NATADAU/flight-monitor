@@ -64,19 +64,19 @@ def send_check_reminder():
     last = prices[-1] if prices else None
     last_info = f"\nПоследняя записанная цена: <b>{last['price']:,} ₽</b> ({last['date']})" if last else ""
 
-    msg = f"""{greet} Время проверить цены на билеты!
+   msg = f"""{greet} Время проверить цены!
 
 ✈️ <b>Москва → Тбилиси</b>
-🗓 20 июня → 3 июля, {PASSENGERS} пассажира
+🗓 20 июня → 3 июля
 {last_info}
 
-🔍 Проверить сейчас:
-•- <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (умножьте на 3)
+🔍 Проверить:
+- <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (× 3)
 - <a href="{AVIASALES_3}">Aviasales — 3 пассажира</a>
 - <a href="{YANDEX_URL}">Яндекс Путешествия</a>
 - <a href="{SKYSCANNER_URL}">Skyscanner</a>
 
-💬 Напишите мне цену которую нашли (только цифры, например: <b>95000</b>)"""
+💬 Напишите цену цифрами, например: <b>95000</b>"""
 
     send_telegram(msg)
     print(f"[{now}] Напоминание отправлено")
@@ -125,7 +125,8 @@ def handle_updates():
                         
                 elif text == "/start":
                     send_telegram("Привет! Я слежу за ценами на билеты Москва → Тбилиси.\n\nПрисылаю напоминания в 9:00, 13:00 и 20:00.\nКогда проверите цену — просто напишите мне число, например: 95000")
-                    
+                elif text == "/check":
+    send_check_reminder()    
                 elif text == "/history":
                     prices = load_prices()
                     if not prices:
