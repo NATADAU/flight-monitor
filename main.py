@@ -7,7 +7,7 @@ from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # ========== НАСТРОЙКИ ==========
-TELEGRAM_TOKEN = "YOUR_TOKEN_HERE"
+TELEGRAM_TOKEN = "8661087329:AAH-iqUje-nzV8slPhF1XDekPXKB9uAJeSg"
 CHAT_ID = "429893567"
 PRICE_FILE = "prices.json"
 CHECK_TIMES = ["09:00", "13:00", "20:00"]
