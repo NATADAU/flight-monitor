@@ -7,27 +7,27 @@ from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # ========== НАСТРОЙКИ ==========
-TELEGRAM_TOKEN = "8661087329:AAH-iqUje-nzV8slPhF1XDekPXKB9uAJeSg"
+TELEGRAM_TOKEN = "YOUR_TOKEN_HERE"
 CHAT_ID = "429893567"
-
-DATE_THERE = "20250620"
-DATE_BACK = "20250703"
-PASSENGERS = 3
-
 PRICE_FILE = "prices.json"
 CHECK_TIMES = ["09:00", "13:00", "20:00"]
-# ================================
 
 AVIASALES_1 = "https://www.aviasales.ru/search/MOW2006TBS030731"
 AVIASALES_3 = "https://www.aviasales.ru/search/MOW2006TBS030733"
 YANDEX_URL = "https://travel.yandex.ru/avia/search/?adult=3&children=0&infants=0&fromId=c213&toId=c10313&when=2025-06-20&return=2025-07-03"
 SKYSCANNER_URL = "https://www.skyscanner.ru/transport/flights/mosc/tbla/250620/250703/?adults=3"
+# ================================
 
 
 def send_telegram(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     try:
-        requests.post(url, json={"chat_id": CHAT_ID, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}, timeout=10)
+        requests.post(url, json={
+            "chat_id": CHAT_ID,
+            "text": text,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True
+        }, timeout=10)
     except Exception as e:
         print(f"Ошибка Telegram: {e}")
 
@@ -49,117 +49,118 @@ def save_price(price):
     return prices
 
 
-def get_last_price():
-    prices = load_prices()
-    if len(prices) >= 2:
-        return prices[-2]["price"]
-    return None
-
-
-def send_check_reminder():
+def send_reminder():
     now = datetime.now().strftime("%H:%M")
-    greet = "🌅 Доброе утро!" if now < "12:00" else ("☀️ Добрый день!" if now < "18:00" else "🌙 Добрый вечер!")
-    
-    prices = load_prices()
-    last = prices[-1] if prices else None
-    last_info = f"\nПоследняя записанная цена: <b>{last['price']:,} ₽</b> ({last['date']})" if last else ""
+    if now < "12:00":
+        greet = "🌅 Доброе утро!"
+    elif now < "18:00":
+        greet = "☀️ Добрый день!"
+    else:
+        greet = "🌙 Добрый вечер!"
 
-   msg = f"""{greet} Время проверить цены!
+    prices = load_prices()
+    last_info = ""
+    if prices:
+        last = prices[-1]
+        last_info = f"\nПоследняя цена: <b>{last['price']:,} ₽</b> ({last['date']})"
+
+    msg = f"""{greet} Время проверить цены на билеты!
 
 ✈️ <b>Москва → Тбилиси</b>
-🗓 20 июня → 3 июля
-{last_info}
+🗓 20 июня → 3 июля, 3 пассажира{last_info}
 
-🔍 Проверить:
-- <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (× 3)
-- <a href="{AVIASALES_3}">Aviasales — 3 пассажира</a>
-- <a href="{YANDEX_URL}">Яндекс Путешествия</a>
-- <a href="{SKYSCANNER_URL}">Skyscanner</a>
+🔍 Открыть поиск:
+• <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (умножьте на 3)
+• <a href="{AVIASALES_3}">Aviasales — 3 пассажира</a>
+• <a href="{YANDEX_URL}">Яндекс Путешествия</a>
+• <a href="{SKYSCANNER_URL}">Skyscanner</a>
 
-💬 Напишите цену цифрами, например: <b>95000</b>"""
+💬 Напишите найденную цену цифрами, например: <b>95000</b>"""
 
     send_telegram(msg)
     print(f"[{now}] Напоминание отправлено")
 
 
 def handle_updates():
-    """Получаем ответы пользователя и сохраняем цены"""
     offset = 0
     while True:
         try:
             url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
             r = requests.get(url, params={"offset": offset, "timeout": 30}, timeout=35)
             data = r.json()
-            
+
             for update in data.get("result", []):
                 offset = update["update_id"] + 1
                 msg = update.get("message", {})
                 text = msg.get("text", "").strip()
                 chat_id = str(msg.get("chat", {}).get("id", ""))
-                
+
                 if chat_id != CHAT_ID:
                     continue
-                    
-                # Если пользователь прислал число — это цена
-                if text.replace(" ", "").replace(",", "").isdigit():
-                    price = int(text.replace(" ", "").replace(",", ""))
-                    if 10000 < price < 500000:
-                        prices = save_price(price)
-                        last = get_last_price()
-                        
-                        if last:
-                            diff = price - last
-                            if diff < 0:
-                                trend = f"📉 Подешевело на {abs(diff):,} ₽ с прошлой проверки!"
-                            elif diff > 0:
-                                trend = f"📈 Подорожало на {diff:,} ₽ с прошлой проверки."
-                            else:
-                                trend = "➡️ Цена не изменилась."
-                            reply = f"✅ Записала: <b>{price:,} ₽</b>\n{trend}\n\nВсего записей: {len(prices)}"
-                        else:
-                            reply = f"✅ Записала стартовую цену: <b>{price:,} ₽</b>\nБуду сравнивать со следующей проверкой!"
-                        
-                        send_telegram(reply)
-                    else:
-                        send_telegram("Цена выглядит странно — введите полную сумму за 3 пассажира в рублях, например: 95000")
-                        
-                elif text == "/start":
-                    send_telegram("Привет! Я слежу за ценами на билеты Москва → Тбилиси.\n\nПрисылаю напоминания в 9:00, 13:00 и 20:00.\nКогда проверите цену — просто напишите мне число, например: 95000")
+
+                if text == "/start":
+                    send_telegram(
+                        "👋 Привет! Я слежу за ценами на билеты <b>Москва → Тбилиси</b>.\n\n"
+                        "Буду присылать напоминания в <b>9:00, 13:00 и 20:00</b> со ссылками на поиск.\n\n"
+                        "Когда найдёте цену — просто напишите число, например: <b>95000</b>\n\n"
+                        "Команды:\n"
+                        "/check — проверить цены прямо сейчас\n"
+                        "/history — история записанных цен"
+                    )
+
                 elif text == "/check":
-    send_check_reminder()    
+                    send_reminder()
+
                 elif text == "/history":
                     prices = load_prices()
                     if not prices:
-                        send_telegram("Пока нет записей. Проверьте цену и напишите мне число!")
+                        send_telegram("Пока нет записей.\n\nПроверьте цену и напишите мне число!")
                     else:
                         lines = ["📊 <b>История цен:</b>\n"]
                         for p in prices[-10:]:
                             lines.append(f"• {p['date']}: {p['price']:,} ₽")
                         if len(prices) >= 2:
                             diff = prices[-1]['price'] - prices[0]['price']
-                            lines.append(f"\nИзменение с первой проверки: {'📉 -' if diff < 0 else '📈 +'}{abs(diff):,} ₽")
+                            sign = "📉 -" if diff < 0 else "📈 +"
+                            lines.append(f"\nС первой проверки: {sign}{abs(diff):,} ₽")
                         send_telegram("\n".join(lines))
 
+                elif text.replace(" ", "").replace(",", "").isdigit():
+                    price = int(text.replace(" ", "").replace(",", ""))
+                    if 10000 < price < 500000:
+                        prices = save_price(price)
+                        if len(prices) >= 2:
+                            prev = prices[-2]["price"]
+                            diff = price - prev
+                            if diff < 0:
+                                trend = f"📉 Подешевело на <b>{abs(diff):,} ₽</b>!"
+                            elif diff > 0:
+                                trend = f"📈 Подорожало на <b>{diff:,} ₽</b>."
+                            else:
+                                trend = "➡️ Цена не изменилась."
+                            reply = f"✅ Записала: <b>{price:,} ₽</b>\n{trend}\n\nВсего записей: {len(prices)}"
+                        else:
+                            reply = f"✅ Записала стартовую цену: <b>{price:,} ₽</b>\nБуду сравнивать со следующей проверкой!"
+                        send_telegram(reply)
+                    else:
+                        send_telegram("⚠️ Введите полную сумму в рублях, например: <b>95000</b>")
+
         except Exception as e:
-            print(f"Ошибка получения обновлений: {e}")
+            print(f"Ошибка updates: {e}")
             time.sleep(5)
 
 
 def schedule_loop():
-    """Проверяем расписание каждую минуту"""
-    sent_today = set()
+    sent = set()
     while True:
         now = datetime.now().strftime("%H:%M")
         day = datetime.now().strftime("%d")
         key = f"{day}-{now}"
-        
-        if now in CHECK_TIMES and key not in sent_today:
-            send_check_reminder()
-            sent_today.add(key)
-            # Очищаем старые записи
-            if len(sent_today) > 10:
-                sent_today = {key}
-        
+        if now in CHECK_TIMES and key not in sent:
+            send_reminder()
+            sent.add(key)
+            if len(sent) > 20:
+                sent = {key}
         time.sleep(30)
 
 
@@ -172,9 +173,8 @@ class PingHandler(BaseHTTPRequestHandler):
         pass
 
 
-# Запуск
 print("Бот запущен!")
-send_telegram("✅ Бот запущен! Буду присылать напоминания в 9:00, 13:00 и 20:00.\n\nКоманды:\n/history — история цен\n\nПросто напишите число чтобы записать цену, например: 95000")
+send_telegram("✅ Бот запущен!\n\nБуду присылать ссылки в 9:00, 13:00 и 20:00.\nНапишите /check чтобы проверить прямо сейчас.")
 
 threading.Thread(target=handle_updates, daemon=True).start()
 threading.Thread(target=schedule_loop, daemon=True).start()
