@@ -12,10 +12,10 @@ CHAT_ID = "429893567"
 PRICE_FILE = "prices.json"
 CHECK_TIMES = ["09:00", "13:00", "20:00"]
 
-AVIASALES_1 = "https://www.aviasales.ru/search/MOW2006TBS030731"
-AVIASALES_3 = "https://www.aviasales.ru/search/MOW2006TBS030733"
-YANDEX_URL = "https://travel.yandex.ru/avia/search/?adult=3&children=0&infants=0&fromId=c213&toId=c10313&when=2025-06-20&return=2025-07-03"
-SKYSCANNER_URL = "https://www.skyscanner.ru/transport/flights/mosc/tbla/250620/250703/?adults=3"
+AVIASALES_1 = "https://www.aviasales.ru/search/MOW2206TBS03071"
+AVIASALES_3 = "https://www.aviasales.ru/search/MOW2206TBS03073"
+YANDEX_1 = "https://travel.yandex.ru/avia/search/result/?adult_seats=1&children_seats=0&fromId=c213&infant_seats=0&klass=economy&oneway=2&return_date=2026-07-03&toId=c10277&when=2026-06-20"
+YANDEX_3 = "https://travel.yandex.ru/avia/search/result/?adult_seats=3&children_seats=0&fromId=c213&infant_seats=0&klass=economy&oneway=2&return_date=2026-07-03&toId=c10277&when=2026-06-20"
 # ================================
 
 
@@ -70,10 +70,10 @@ def send_reminder():
 🗓 20 июня → 3 июля, 3 пассажира{last_info}
 
 🔍 Открыть поиск:
-• <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (умножьте на 3)
-• <a href="{AVIASALES_3}">Aviasales — 3 пассажира</a>
-• <a href="{YANDEX_URL}">Яндекс Путешествия</a>
-• <a href="{SKYSCANNER_URL}">Skyscanner</a>
+- <a href="{AVIASALES_1}">Aviasales — 1 пассажир</a> (× 3)
+- <a href="{AVIASALES_3}">Aviasales — 3 пассажира</a>
+- <a href="{YANDEX_1}">Яндекс — 1 пассажир</a> (× 3)
+- <a href="{YANDEX_3}">Яндекс — 3 пассажира</a>
 
 💬 Напишите найденную цену цифрами, например: <b>95000</b>"""
 
