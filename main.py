@@ -114,6 +114,7 @@ class PingHandler(BaseHTTPRequestHandler):
 
 def run_bot():
     print("Бот запущен!")
+    send_telegram("Привет! Бот работает и начинает мониторинг цен.")
     check_prices()
     while True:
         schedule.run_pending()
