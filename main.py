@@ -18,9 +18,9 @@ PRICE_FILE = "prices.json"
 CHECK_TIMES = ["09:00", "13:00", "20:00"]
 # ================================
 
-AVIASALES_URL = f"https://www.aviasales.ru/search/MOW{DATE_THERE}TBS{DATE_BACK}{PASSENGERS}"
-YANDEX_URL = f"https://travel.yandex.ru/avia/search/?fromId=c213&toId=c10313&when=2025-06-20&return=2025-07-03&adults={PASSENGERS}"
-SKYSCANNER_URL = f"https://www.skyscanner.ru/transport/flights/mosc/tbla/250620/250703/?adults={PASSENGERS}"
+AVIASALES_URL = "https://www.aviasales.ru/search/MOW2006TBS03073"
+YANDEX_URL = "https://travel.yandex.ru/avia/search/?adult=3&children=0&infants=0&fromId=c213&toId=c10313&when=2025-06-20&return=2025-07-03"
+SKYSCANNER_URL = "https://www.skyscanner.ru/transport/flights/mosc/tbla/250620/250703/?adults=3"
 
 
 def send_telegram(text):
