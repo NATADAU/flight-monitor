@@ -67,7 +67,7 @@ def check_prices():
     price_2 = get_price(2)
     price_3 = get_price(3)
     if not price_1:
-        print("Не удалось получить цены")
+        print("Не удалось получить цены. Проверьте токен Aviasales.")
         return
     last = load_last_price()
     last_p3 = last.get("price_3", 0)
